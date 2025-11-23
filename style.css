@@ -1,0 +1,214 @@
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --neon-accent: #0A84FF; /* Apple Blue */
+    --app-bg: #000000;
+    --panel-bg: #1c1c1e;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--app-bg);
+    color: #f5f5f7;
+    overflow: hidden;
+}
+
+/* Persian Font Support - Język Perski (RTL) */
+.persian-text {
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #424245;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6e6e73;
+}
+
+/* Glassmorphism & Apple Aesthetic */
+.glass-panel {
+    background: rgba(28, 28, 30, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.btn-apple {
+    background: #0071e3;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.btn-apple:hover {
+    background: #0077ed;
+    transform: scale(1.02);
+}
+.btn-apple:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Markdown Styling */
+.prose {
+    max-width: none;
+    color: #e5e5e7;
+    line-height: 1.6;
+}
+.prose h1, .prose h2, .prose h3 {
+    color: #fff;
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+.prose p {
+    margin-bottom: 1em;
+}
+.prose ul {
+    list-style-type: disc;
+    padding-right: 1.5em;
+    margin-bottom: 1em;
+}
+
+/* CODE BLOCK STYLING - STRICT LTR (Wymuszenie lewo-do-prawej dla kodu) */
+pre {
+    background: #1e1e1e !important;
+    border-radius: 10px;
+    padding: 0;
+    margin: 1.5em 0;
+    position: relative;
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    direction: ltr !important; /* Force LTR - Kluczowe dla czytelności kodu */
+    text-align: left !important;
+    overflow: hidden;
+}
+
+/* Terminal Header (Kropki Maca) */
+pre::before {
+    content: "● ● ●";
+    display: block;
+    background: #2d2d2d;
+    color: transparent;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 12px;
+    font-size: 20px;
+    letter-spacing: -2px;
+    text-shadow: 
+        0 0 0 #ff5f56, /* Red */
+        20px 0 0 #ffbd2e, /* Yellow */
+        40px 0 0 #27c93f; /* Green */
+    border-bottom: 1px solid #333;
+}
+
+/* Copy Button Styling */
+.copy-btn {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: transparent;
+    border: 1px solid #555;
+    color: #aaa;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.copy-btn:hover {
+    background: #333;
+    color: white;
+}
+
+code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    padding: 15px;
+    display: block;
+    overflow-x: auto;
+}
+
+/* Roadmap Tree View Styling */
+.tree-view ul {
+    padding-left: 20px;
+    border-left: 1px solid #333;
+    list-style: none;
+}
+.tree-view li {
+    margin: 8px 0;
+    position: relative;
+}
+.tree-view li::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: -20px;
+    width: 15px;
+    height: 1px;
+    background: #333;
+}
+.tree-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: default;
+}
+.tree-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+.status-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.status-pending { background: #636366; }
+.status-active { background: #0A84FF; box-shadow: 0 0 8px #0A84FF; }
+.status-done { background: #30D158; }
+
+/* Loader Animation */
+.typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #8e8e93;
+    border-radius: 50%;
+    animation: typing 1s infinite ease-in-out;
+    margin: 0 2px;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}

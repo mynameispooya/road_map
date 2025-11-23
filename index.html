@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Architect Mastermind</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-screen flex flex-col">
+
+    <!-- Initial Setup Modal -->
+    <div id="setupModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div class="glass-panel p-8 w-full max-w-md space-y-6 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <i class="fa-solid fa-brain text-2xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                Gemini Architect
+            </h2>
+            <p class="text-gray-400 text-sm">
+                Wprowadź klucze API, aby rozpocząć współpracę z Mastermindem.
+            </p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Gemini API Key</label>
+                    <input type="password" id="geminiKeyInput" class="w-full bg-[#2c2c2e] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition" placeholder="AIza...">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wider">GitHub Token (Opcjonalnie)</label>
+                    <input type="password" id="githubTokenInput" class="w-full bg-[#2c2c2e] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition" placeholder="github_pat_...">
+                </div>
+                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wider">GitHub Owner</label>
+                        <input type="text" id="repoOwnerInput" class="w-full bg-[#2c2c2e] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition" placeholder="np. twojanazwa">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Repo Name</label>
+                        <input type="text" id="repoNameInput" class="w-full bg-[#2c2c2e] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition" placeholder="np. my-app">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="initializeSession()" class="w-full btn-apple py-3">
+                Połącz i Rozpocznij
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div class="flex-1 flex overflow-hidden p-4 gap-4 relative">
+        
+        <!-- Background FX -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <!-- Left Panel: Chat -->
+        <div class="flex-1 flex flex-col glass-panel overflow-hidden min-w-[400px]">
+            <!-- Header -->
+            <div class="h-14 border-b border-white/10 flex items-center justify-between px-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-4 text-sm font-medium text-gray-300">Gemini Terminal</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="downloadHistory()" class="btn-secondary" title="Pobierz Historię (JSON)">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <label class="btn-secondary cursor-pointer" title="Wgraj Historię">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" id="historyUpload" class="hidden" onchange="uploadHistory(this)">
+                    </label>
+                    <button onclick="clearChat()" class="btn-secondary text-red-400 hover:text-red-300">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Welcome Message -->
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex-shrink-0 flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <div class="text-xs text-gray-500 font-mono uppercase">System</div>
+                        <div class="prose persian-text bg-[#2c2c2e]/50 p-4 rounded-2xl rounded-tl-none border border-white/5">
+                            <p>سلام! من معمار ارشد پروژه شما هستم. ایده خود را به فارسی بنویسید تا آن را تحلیل و طراحی کنم.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-white/10 bg-[#1c1c1e]/80 backdrop-blur-md">
+                <div class="relative">
+                    <textarea 
+                        id="userInput"
+                        rows="1" 
+                        class="w-full bg-[#2c2c2e] border border-gray-700 rounded-xl pl-4 pr-12 py-3 text-white focus:outline-none focus:border-blue-500 transition resize-none persian-text"
+                        placeholder="دستور خود را اینجا بنویسید..."
+                        style="min-height: 50px; max-height: 150px;"
+                    ></textarea>
+                    <button onclick="sendMessage()" class="absolute left-3 bottom-3 w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white hover:bg-blue-500 transition">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+                <div class="text-center mt-2">
+                    <span class="text-[10px] text-gray-500 font-mono">SHIFT + ENTER for new line</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Roadmap & Tools -->
+        <div class="w-[350px] flex flex-col gap-4">
+            
+            <!-- Roadmap Panel -->
+            <div class="glass-panel flex-1 flex flex-col overflow-hidden p-4">
+                <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap text-blue-500"></i> Master Plan (Roadmap)
+                </h3>
+                <div id="roadmapContainer" class="flex-1 overflow-y-auto tree-view text-sm text-gray-300">
+                    <p class="text-gray-600 italic text-center mt-10">Oczekiwanie na zdefiniowanie projektu...</p>
+                </div>
+            </div>
+
+            <!-- GitHub Status Panel -->
+            <div class="glass-panel h-[200px] p-4 flex flex-col">
+                <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-brands fa-github text-white"></i> GitHub Uplink
+                </h3>
+                <div class="flex-1 bg-[#111] rounded-lg p-3 font-mono text-xs text-green-400 overflow-y-auto" id="githubConsole">
+                    > System gotowy.<br>
+                    > Oczekiwanie na połączenie...
+                </div>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="verifyProject()" class="flex-1 btn-secondary bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30">
+                        <i class="fa-solid fa-check-circle mr-1"></i> Weryfikuj
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
